@@ -1,0 +1,289 @@
+// Variables
+$breakpoints: (
+  xs: 0,
+  sm: 600px,
+  md: 900px,
+  lg: 1200px,
+  xl: 1536px
+);
+
+$colors: (
+  primary: #1976d2,
+  secondary: #dc004e,
+  background: #ffffff,
+  text: #212121,
+  textSecondary: #757575,
+  error: #f44336,
+  warning: #ff9800,
+  success: #4caf50
+);
+
+$spacing: (
+  xs: 0.5rem,
+  sm: 1rem,
+  md: 1.5rem,
+  lg: 2rem,
+  xl: 3rem
+);
+
+$typography: (
+  h1: 2.5rem,
+  h2: 2rem,
+  h3: 1.75rem,
+  h4: 1.5rem,
+  h5: 1.25rem,
+  h6: 1rem,
+  body: 1rem,
+  caption: 0.875rem
+);
+
+// Mixins
+@mixin respond-to($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media (min-width: map-get($breakpoints, $breakpoint)) {
+      @content;
+    }
+  } @else {
+    @warn "Breakpoint #{$breakpoint} not found in $breakpoints map";
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 map-get($spacing, sm);
+
+  @include respond-to(md) {
+    padding: 0 map-get($spacing, md);
+  }
+}
+
+@mixin card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: map-get($spacing, md);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Base styles
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  line-height: 1.6;
+  color: map-get($colors, text);
+  background-color: map-get($colors, background);
+}
+
+// Typography
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: map-get($spacing, sm);
+}
+
+h1 { 
+  font-size: map-get($typography, h1);
+  @include respond-to(sm) { font-size: 3rem; }
+}
+
+h2 { 
+  font-size: map-get($typography, h2);
+  @include respond-to(sm) { font-size: 2.25rem; }
+}
+
+h3 { font-size: map-get($typography, h3); }
+h4 { font-size: map-get($typography, h4); }
+h5 { font-size: map-get($typography, h5); }
+h6 { font-size: map-get($typography, h6); }
+
+p {
+  margin-bottom: map-get($spacing, sm);
+  font-size: map-get($typography, body);
+}
+
+// Layout classes
+.container {
+  @include container;
+}
+
+.section {
+  padding: map-get($spacing, xl) 0;
+
+  @include respond-to(md) {
+    padding: map-get($spacing, xl) * 1.5 0;
+  }
+}
+
+.grid {
+  display: grid;
+  gap: map-get($spacing, md);
+  
+  &--2 {
+    grid-template-columns: 1fr;
+    
+    @include respond-to(md) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  &--3 {
+    grid-template-columns: 1fr;
+    
+    @include respond-to(sm) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    @include respond-to(lg) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+}
+
+.flex {
+  display: flex;
+  
+  &--center {
+    @include flex-center;
+  }
+  
+  &--column {
+    flex-direction: column;
+  }
+  
+  &--wrap {
+    flex-wrap: wrap;
+  }
+  
+  &--gap-sm { gap: map-get($spacing, sm); }
+  &--gap-md { gap: map-get($spacing, md); }
+  &--gap-lg { gap: map-get($spacing, lg); }
+}
+
+// Component classes
+.card {
+  @include card;
+}
+
+.button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: map-get($typography, body);
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px; // Mobile touch friendly
+  
+  &--primary {
+    background-color: map-get($colors, primary);
+    color: white;
+    
+    &:hover {
+      background-color: darken(map-get($colors, primary), 10%);
+    }
+  }
+  
+  &--secondary {
+    background-color: map-get($colors, secondary);
+    color: white;
+    
+    &:hover {
+      background-color: darken(map-get($colors, secondary), 10%);
+    }
+  }
+  
+  &--outlined {
+    background-color: transparent;
+    border: 2px solid map-get($colors, primary);
+    color: map-get($colors, primary);
+    
+    &:hover {
+      background-color: map-get($colors, primary);
+      color: white;
+    }
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// Utility classes
+.text {
+  &--center { text-align: center; }
+  &--left { text-align: left; }
+  &--right { text-align: right; }
+  
+  &--primary { color: map-get($colors, primary); }
+  &--secondary { color: map-get($colors, secondary); }
+  &--error { color: map-get($colors, error); }
+  &--success { color: map-get($colors, success); }
+}
+
+.mt { margin-top: map-get($spacing, sm); }
+.mt-md { margin-top: map-get($spacing, md); }
+.mt-lg { margin-top: map-get($spacing, lg); }
+
+.mb { margin-bottom: map-get($spacing, sm); }
+.mb-md { margin-bottom: map-get($spacing, md); }
+.mb-lg { margin-bottom: map-get($spacing, lg); }
+
+.p { padding: map-get($spacing, sm); }
+.p-md { padding: map-get($spacing, md); }
+.p-lg { padding: map-get($spacing, lg); }
+
+// Hide/show based on breakpoints
+.hide-on-mobile {
+  @include respond-to(sm) {
+    display: none;
+  }
+}
+
+.show-on-desktop {
+  display: none;
+  
+  @include respond-to(md) {
+    display: block;
+  }
+}
+
+// Accessibility
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
