@@ -9,11 +9,15 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
-COPY ../../requirements.txt .
+#COPY ../../requirements.txt .
+COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY services/server/app/ ./app/
+# Copy application code (file structure needs to seen from root of projcet then relative path)
+#COPY services/server/app/ ./app/
+COPY services/server/app ./app
+COPY services/server/public ./public
+COPY services/server/init.sql ./init.sql
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
