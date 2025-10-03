@@ -1,15 +1,17 @@
 services:
   server:
-    build: .
+    build:
+      context: .
+      dockerfile: services/server/Dockerfile
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:password@postgres:5432/chatbot
+      - DATABASE_URL=postgresql+asyncpg://postgres:chatbot321@postgres:5432/chatbot
       - DEBUG=true
     depends_on:
       - postgres
     volumes:
-      - ./app:/app/app  # For development: mount code for live reload
+      - ./services/server/app:/app/app  # For development: mount code for live reload
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   postgres:
