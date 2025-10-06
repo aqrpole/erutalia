@@ -20,3 +20,20 @@ docker compose up --build
 
 # stops and removes containers + volumes (drops DB!)
 docker-compose down -v
+
+note-for future use, use SQLalchemy2.X, in the requirments file for ingenstion 
+
+#to run the ingestion process go to the folder services/extractor
+python -m app.main process
+
+# Process specific folder (override config)
+python -m app.main process --input-dir /path/to/your/documents
+
+# Process single file
+python -m app.main process-file /path/to/specific/document.pdf
+
+# Check for errors
+python -m app.main show-errors
+
+# Health check
+python -m app.main health
