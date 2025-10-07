@@ -24,7 +24,7 @@ docker-compose down -v
 note-for future use, use SQLalchemy2.X, in the requirments file for ingenstion 
 
 #to run the ingestion process go to the folder services/extractor
-python -m app.main process
+python3.12 -m app.main process
 
 # Process specific folder (override config)
 python -m app.main process --input-dir /path/to/your/documents
@@ -37,3 +37,9 @@ python -m app.main show-errors
 
 # Health check
 python -m app.main health
+
+# requirments initaial phase 
+python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
+
+Found 298 supported files
+Supported formats: ['.pptx', '.pdf', '.png', '.docx', '.jpg', '.txt', '.jpeg']
