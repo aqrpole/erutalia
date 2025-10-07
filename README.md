@@ -1,5 +1,21 @@
 # erutalia
-student project connecting AWS services
+student project integrating LLM Ollama of AWS services on AWS EC2 or GCP
+
+Architecture
+```mermaid
+graph LR
+A[User, Q/A] --> B[AUTH Service, JWT ]
+B --> C[API Server, FastAPI]
+C --> D[QDRant, VectorDB]
+C --> E[Ollama LLm API, AWS]
+C --> F[PostGres SQL, User Data]
+G[Standone Ingestor] --> D
+D --> C
+F --> C
+E --> C
+C --> B
+B --> A
+```
 
 go to the directory /services/server
 to build 
@@ -12,13 +28,13 @@ go to services/server
 docker compose up --build server
 
 
-# build overall from root dir all services up detached and contianerized
+## build overall from root dir all services up detached and contianerized
 docker compose up --build -d
 
-# run in interactive mode without storing
+## run in interactive mode without storing
 docker compose up --build
 
-# stops and removes containers + volumes (drops DB!)
+## stops and removes containers + volumes (drops DB!)
 docker-compose down -v
 
 note-for future use, use SQLalchemy2.X, in the requirments file for ingenstion 
@@ -26,19 +42,19 @@ note-for future use, use SQLalchemy2.X, in the requirments file for ingenstion
 #to run the ingestion process go to the folder services/extractor
 python3.12 -m app.main process
 
-# Process specific folder (override config)
+## Process specific folder (override config)
 python -m app.main process --input-dir /path/to/your/documents
 
-# Process single file
+## Process single file
 python -m app.main process-file /path/to/specific/document.pdf
 
-# Check for errors
+## Check for errors
 python -m app.main show-errors
 
-# Health check
+## Health check
 python -m app.main health
 
-# requirments initaial phase 
+## requirments initaial phase 
 python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
 
 Found 298 supported files
