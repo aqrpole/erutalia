@@ -15,8 +15,6 @@ F --> C
 E --> C
 C --> B
 B[AUTH Service, JWT ] --> C
-B --> C
-C --> B
 ```
 ## Docker commands
 
