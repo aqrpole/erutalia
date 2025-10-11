@@ -1,21 +1,26 @@
 # services/extractor/app/utils/idgen.py
 """
-ULID generation utilities
+UUID generation utilities (Qdrant-compatible)
+New one has hyphens which are mandated not ULID
 """
-import ulid
+
+import uuid
 from typing import Optional
 
-def generate_ulid() -> str:
-    """Generate a ULID string"""
-    return str(ulid.new())
+def generate_id() -> str:
+    """Generate a Qdrant-compatible unique UUID string"""
+    return str(uuid.uuid4())
 
-def generate_ulid_bytes() -> bytes:
-    """Generate ULID as bytes"""
-    return ulid.new().bytes
 
-def parse_ulid(ulid_str: str) -> Optional[ulid.ULID]:
-    """Parse ULID from string"""
+def generate_id_bytes() -> bytes:
+    """Generate UUID as bytes"""
+    return uuid.uuid4().bytes
+
+
+def parse_id(id_str: str) -> Optional[uuid.UUID]:
+    """Parse UUID from string, return None if invalid"""
     try:
-        return ulid.from_str(ulid_str)
+        return uuid.UUID(id_str)
     except ValueError:
         return None
+

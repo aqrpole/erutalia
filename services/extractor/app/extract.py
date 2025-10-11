@@ -41,15 +41,15 @@ class DocumentProcessor:
         # Remove duplicates and return
         return list(set(files))
     
-    async def process_file(self, file_path: str, chunk_size: int = 1000) -> List[Dict[str, Any]]:
-        """Process a file and return text chunks with metadata"""
+    def process_file(self, file_path: str, chunk_size: int = 1000) -> List[Dict[str, Any]]:
+        """Process a file and return text chunks with metadata - SYNCHRONOUS"""
         path = Path(file_path)
         
         if not path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
         
-        # Extract text
-        text = await self.extract_text_from_file(path)
+        # Extract text - CHANGED: Direct call
+        text = self.extract_text_from_file(path)
         
         if not text.strip():
             logger.warning(f"No text extracted from {file_path}")
@@ -72,8 +72,8 @@ class DocumentProcessor:
             }
             for i, chunk in enumerate(chunks)
         ]
-    
-    async def extract_text_from_file(self, file_path: Path) -> str:
+
+    def extract_text_from_file(self, file_path: Path) -> str:
         """Extract text from file path"""
         suffix = file_path.suffix.lower()
         
