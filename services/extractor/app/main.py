@@ -71,7 +71,8 @@ def cli():
               help='Directory to store error logs')
 def process(input_dir: str, collection: str, chunk_size: int, batch_size: int, error_dir: str):
     """Process all documents in directory and load into Qdrant"""
-    asyncio.run(process_documents(input_dir, collection, chunk_size, batch_size, error_dir))
+    # CHANGED: Direct function call instead of asyncio.run
+    process_documents(input_dir, collection, chunk_size, batch_size, error_dir)
 
 @cli.command()
 @click.argument('file_path')
@@ -80,7 +81,8 @@ def process(input_dir: str, collection: str, chunk_size: int, batch_size: int, e
               help='Qdrant collection name')
 def process_file(file_path: str, collection: str):
     """Process a single file and load into Qdrant"""
-    asyncio.run(process_single_file(file_path, collection))
+    # CHANGED: Direct function call instead of asyncio.run
+    process_single_file(file_path, collection)
 
 @cli.command()
 @click.option('--error-dir',
@@ -88,20 +90,31 @@ def process_file(file_path: str, collection: str):
               help='Directory containing error logs')
 def show_errors(error_dir: str):
     """Show recent processing errors"""
-    asyncio.run(display_recent_errors(error_dir))
+    display_recent_errors(error_dir)
 
 @cli.command()
 def health():
     """Check service health and connections"""
-    asyncio.run(check_health())
+    check_health()
 
-async def process_documents(input_dir: str, collection: str, chunk_size: int, batch_size: int, error_dir: str):
+# CHANGED: Removed async
+def process_documents(input_dir: str, collection: str, chunk_size: int, batch_size: int, error_dir: str):
     """Process all documents in directory with error tracking"""
     logger.info(f"Starting document processing from: {input_dir}")
 
     processor = DocumentProcessor()
     embedder = EmbeddingGenerator()
     error_tracker = ErrorTracker(error_dir)
+
+    # Health check first
+    logger.info("Performing health checks...")
+    if not embedder.check_qdrant_health():
+        logger.error("❌ Qdrant is not accessible. Please make sure it's running.")
+        return
+
+    if not embedder.check_embedding_health():
+        logger.error("❌ Embedding model is not working.")
+        return
 
     # Get all supported files
     files = processor.find_supported_files(input_dir)
@@ -120,7 +133,8 @@ async def process_documents(input_dir: str, collection: str, chunk_size: int, ba
             logger.info(f"Processing: {file_path}")
 
             # Extract and chunk text
-            chunks = await processor.process_file(str(file_path), chunk_size)
+            # CHANGED: Direct call instead of await
+            chunks = processor.process_file(str(file_path), chunk_size)
 
             if not chunks:
                 logger.warning(f"No content extracted from {file_path}")
@@ -131,17 +145,18 @@ async def process_documents(input_dir: str, collection: str, chunk_size: int, ba
             # Generate embeddings and store in Qdrant
             metadata = {
                 "collection": collection,
-                "file_path" : str (file_path),
+                "file_path": str(file_path),
                 "batch_size": batch_size,
             }
-            success = embedder.process_chunks (chunks, metadata)
+            # CHANGED: Direct call instead of await
+            success = embedder.process_chunks(chunks, metadata)
 
             if success:
                 successful += 1
                 logger.info(f"✅ Successfully processed {file_path} ({len(chunks)} chunks)")
 
                 # Move to processed directory (optional)
-                await move_to_processed(file_path)
+                move_to_processed(file_path)
             else:
                 failed += 1
                 error_tracker.log_error(str(file_path), "Embedding/Qdrant storage failed", "storage")
@@ -164,7 +179,8 @@ async def process_documents(input_dir: str, collection: str, chunk_size: int, ba
         logger.info(f"📝 Error log: {error_summary['error_log_file']}")
         logger.info(f"🔍 Run 'python -m app.main show-errors' to view detailed errors")
 
-async def process_single_file(file_path: str, collection: str):
+# CHANGED: Removed async
+def process_single_file(file_path: str, collection: str):
     """Process a single file"""
     logger.info(f"Processing single file: {file_path}")
 
@@ -172,7 +188,8 @@ async def process_single_file(file_path: str, collection: str):
     embedder = EmbeddingGenerator()
 
     try:
-        chunks = await processor.process_file(file_path, settings.CHUNK_SIZE)
+        # CHANGED: Direct call instead of await
+        chunks = processor.process_file(file_path, settings.CHUNK_SIZE)
 
         if not chunks:
             logger.warning(f"No content extracted from {file_path}")
@@ -181,11 +198,12 @@ async def process_single_file(file_path: str, collection: str):
         # Generate embeddings and store in Qdrant
         metadata = {
             "collection": collection,
-            "file_path" : str (file_path),
+            "file_path": file_path,
             "batch_size": settings.BATCH_SIZE,
         }
 
-        success = embedder.process_chunks (chunks, metadata)
+        # CHANGED: Direct call instead of await
+        success = embedder.process_chunks(chunks, metadata)
 
         if success:
             logger.info(f"✅ Successfully processed {file_path} ({len(chunks)} chunks)")
@@ -195,7 +213,8 @@ async def process_single_file(file_path: str, collection: str):
     except Exception as e:
         logger.error(f"❌ Error processing {file_path}: {str(e)}")
 
-async def display_recent_errors(error_dir: str):
+# CHANGED: Removed async
+def display_recent_errors(error_dir: str):
     """Display recent processing errors"""
     error_path = Path(error_dir)
 
@@ -223,14 +242,15 @@ async def display_recent_errors(error_dir: str):
             print(f"🔧 Type: {error_data['error_type']}")
             print("-" * 30)
 
-async def check_health():
+# CHANGED: Removed async
+def check_health():
     """Check service health"""
     logger.info("Performing health check...")
 
     embedder = EmbeddingGenerator()
 
-    qdrant_healthy = await embedder.check_qdrant_health()
-    embedding_healthy = await embedder.check_embedding_health()
+    qdrant_healthy = embedder.check_qdrant_health()
+    embedding_healthy = embedder.check_embedding_health()
 
     if qdrant_healthy and embedding_healthy:
         logger.info("✅ All services healthy")
@@ -241,7 +261,8 @@ async def check_health():
         if not embedding_healthy:
             logger.error("  - Embedding service failed")
 
-async def move_to_processed(file_path: Path):
+# CHANGED: Removed async
+def move_to_processed(file_path: Path):
     """Move processed file to processed directory"""
     try:
         processed_dir = Path(settings.PROCESSED_DIR)
