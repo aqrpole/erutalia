@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 from app.schemas.token import Token, LoginRequest
 from app.schemas.user import UserCreate, UserResponse
-from app.services.auth_service import AuthService
+from app.services.auth import AuthService
 from app.repositories.user_repository import UserRepository
 from app.core.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession

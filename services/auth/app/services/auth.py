@@ -1,4 +1,4 @@
-# services/auth-service/app/services/auth_service.py
+# services/auth-service/app/services/auth.py
 from datetime import datetime, timedelta
 from typing import Optional
 from app.repositories.user_repository import UserRepository
