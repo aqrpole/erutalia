@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI):
     if not db_success:
         logger.critical("❌ Auth Service cannot start without database connection")
         # Don't start the service if database is not available
-        sys.exit(1) # uncomment only if do not want smooth exit
+        # sys.exit(1) # uncomment only if do not want smooth exit
 
     logger.info("✅ Auth Service started successfully")
 
