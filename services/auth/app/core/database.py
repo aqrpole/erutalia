@@ -20,7 +20,7 @@ async def get_db():
     """Dependency for getting database session"""
     if AsyncSessionLocal is None:
         raise RuntimeError("Database not initialized. Call init_db() first.")
-    
+
     async with AsyncSessionLocal() as session:
         try:
             yield session
@@ -34,7 +34,7 @@ async def get_db():
 async def init_db(max_retries: int = 3, retry_delay: int = 5):
     """Initialize database connection and create tables with retry logic"""
     global engine, AsyncSessionLocal
-    
+
     for attempt in range(max_retries):
         try:
             logger.info(f"Attempting database connection (attempt {attempt + 1}/{max_retries})...")

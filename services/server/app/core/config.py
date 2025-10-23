@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
     
     # Database
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:password@postgres:5432/chatbot"
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:chatbot321@postgres:5432/chatbot"
     DATABASE_POOL_SIZE: int = 20
     DATABASE_MAX_OVERFLOW: int = 30
     
