@@ -41,6 +41,19 @@ class Settings(BaseSettings):
     
     # Logging
     LOG_LEVEL: str = "INFO"
+
+    # Bedrock Configuration
+    BEDROCK_API_KEY: str = "ABSKQmVkcm9ja0FQSUtleS1ocHNoLWF0LTc0Nzc4MTExOTY3NTowUFNQUVd5bWNwZVVaWnAvcE4rbWhLUWFUazgxOFBaU0hYbWpRc1NwZGxsTFVWOVh5Rml1Sm9WVmxCWT0="
+    BEDROCK_REGION: str = "us-east-2"  # Ohio region
+    BEDROCK_MODEL_ID: str = "openai.gpt-oss-20b-1:0"
+    
+    # Alternative: If using IAM credentials instead of API key
+    # AWS_ACCESS_KEY_ID: str = ""
+    # AWS_SECRET_ACCESS_KEY: str = ""
+    
+    # Fallback to Ollama if Bedrock fails
+    USE_BEDROCK: bool = True
+    FALLBACK_TO_OLLAMA: bool = True
     
     class Config:
         env_file = ".env"
