@@ -24,14 +24,14 @@ async def create_conversation(session: AsyncSession, conversation_id: str, title
 async def get_conversation(session: AsyncSession, conversation_id: str, user_id: Optional[str] = None) -> Optional[ConversationResponse]:
     """Get conversation by ID, with optional user filtering"""
     query = select(Conversation).where(Conversation.id == conversation_id)
-    
+
     # If user_id is provided, ensure the conversation belongs to this user
     if user_id:
         query = query.where(Conversation.user_id == user_id)
-    
+
     result = await session.execute(query)
     conversation = result.scalar_one_or_none()
-    
+
     if conversation:
         return ConversationResponse(
             id=conversation.id,
@@ -52,7 +52,7 @@ async def get_conversations(session: AsyncSession, user_id: str, skip: int = 0, 
         .order_by(Conversation.updated_at.desc())
     )
     conversations = result.scalars().all()
-    
+
     return [
         ConversationResponse(
             id=conv.id,
@@ -73,7 +73,7 @@ async def get_all_conversations(session: AsyncSession, skip: int = 0, limit: int
         .order_by(Conversation.updated_at.desc())
     )
     conversations = result.scalars().all()
-    
+
     return [
         ConversationResponse(
             id=conv.id,
@@ -112,14 +112,14 @@ async def get_messages(session: AsyncSession, conversation_id: str, user_id: Opt
         conversation = conv_result.scalar_one_or_none()
         if not conversation:
             return []  # Conversation doesn't exist or doesn't belong to user
-    
+
     result = await session.execute(
         select(Message)
         .where(Message.conversation_id == conversation_id)
         .order_by(Message.created_at.asc())
     )
     messages = result.scalars().all()
-    
+
     return [
         MessageResponse(
             id=msg.id,
@@ -144,20 +144,20 @@ async def delete_conversation(session: AsyncSession, conversation_id: str, user_
             conversation = conv_result.scalar_one_or_none()
             if not conversation:
                 return False  # Conversation doesn't exist or doesn't belong to user
-        
+
         # Delete messages first
         await session.execute(
             delete(Message).where(Message.conversation_id == conversation_id)
         )
-        
+
         # Delete conversation
         result = await session.execute(
             delete(Conversation).where(Conversation.id == conversation_id)
         )
         await session.commit()
-        
+
         return result.rowcount > 0
-        
+
     except Exception as e:
         await session.rollback()
         raise e
@@ -166,18 +166,18 @@ async def update_conversation_title(session: AsyncSession, conversation_id: str,
     """Update conversation title, with optional user ownership check"""
     try:
         query = update(Conversation).where(Conversation.id == conversation_id)
-        
+
         # Add user filter if provided
         if user_id:
             query = query.where(Conversation.user_id == user_id)
-        
+
         query = query.values(title=new_title)
-        
+
         result = await session.execute(query)
         await session.commit()
-        
+
         return result.rowcount > 0
-        
+
     except Exception as e:
         await session.rollback()
         raise e
@@ -185,13 +185,13 @@ async def update_conversation_title(session: AsyncSession, conversation_id: str,
 async def get_conversation_count(session: AsyncSession, user_id: Optional[str] = None) -> int:
     """Get total conversation count, with optional user filtering"""
     query = select(Conversation)
-    
+
     if user_id:
         query = query.where(Conversation.user_id == user_id)
-    
+
     result = await session.execute(query)
     conversations = result.scalars().all()
-    
+
     return len(conversations)
 
 async def search_conversations(session: AsyncSession, query: str, user_id: str, skip: int = 0, limit: int = 50) -> List[ConversationResponse]:
@@ -210,7 +210,7 @@ async def search_conversations(session: AsyncSession, query: str, user_id: str, 
         .order_by(Conversation.updated_at.desc())
     )
     conversations = result.scalars().all()
-    
+
     return [
         ConversationResponse(
             id=conv.id,

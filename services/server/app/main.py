@@ -10,6 +10,9 @@ from app.core.config import settings
 from app.utils.logging import setup_logging
 from app.core.database import init_db, close_db
 
+from app.controllers import health, chat, conversations, auth
+from app.services.ollama_client import close_session as close_ollama_session
+
 # Setup logging
 logger = setup_logging()
 
@@ -72,6 +75,8 @@ async def lifespan(app: FastAPI):
     # Shutdown
     logger.info("Shutting down API Server")
     await close_db()
+    await close_ollama_session()
+    logger.info("API Server stopped")
 
 # Create FastAPI app
 app = FastAPI(

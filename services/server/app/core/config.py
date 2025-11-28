@@ -2,7 +2,7 @@
 Configuration settings using Pydantic
 """
 from pydantic_settings import BaseSettings
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from typing import List, Optional
 import os
 
@@ -16,11 +16,16 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     # CORS
-    CORS_ORIGINS: List[str] = List[str] = []
+    CORS_ORIGINS: List[str] = Field(default_factory=list)
 
     @field_validator("CORS_ORIGINS", mode="before")
     def split_cors(cls, v):
-        """Parse comma-separated origins from .env into a list"""
+        """
+        Parse comma-separated string from .env into a list.
+        Handles empty strings safely.
+        """
+        if not v:
+            return []
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",") if origin.strip()]
         return v
