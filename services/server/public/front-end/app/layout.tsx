@@ -1,34 +1,72 @@
 import type React from "react"
-import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import type { Metadata, Viewport } from "next"
+import { EB_Garamond, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
+import { siteConfig } from "@/config/site"
+import { ConstructionBanner } from "@/components/construction-banner"
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const ebGaramond = EB_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans",
+})
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+})
 
 export const metadata: Metadata = {
-  title: "Nexus AI - Build the Future with AI",
-  description:
-    "The most powerful AI platform for building transformative products. Create intelligent experiences with industry-leading models and tools.",
-  generator: "v0.app",
+  title: {
+    default: `${siteConfig.name} - ${siteConfig.tagline.en}`,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.description.en,
+  keywords: [
+    "web development",
+    "graph analytics",
+    "HPC",
+    "AI solutions",
+    "AgriTech",
+    "FinTech",
+    "Italy",
+    "Padova",
+    "machine learning",
+    "data science",
+  ],
+  authors: [{ name: siteConfig.name }],
+  creator: siteConfig.name,
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    alternateLocale: ["it_IT"],
+    url: "https://erutalia.com",
+    title: siteConfig.name,
+    description: siteConfig.description.en,
+    siteName: siteConfig.name,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.name,
+    description: siteConfig.description.en,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
+    icon: "/icon.svg",
     apple: "/apple-icon.png",
   },
+    generator: 'v0.app'
+}
+
+export const viewport: Viewport = {
+  themeColor: "#F5F3ED",
+  width: "device-width",
+  initialScale: 1,
+  userScalable: true,
 }
 
 export default function RootLayout({
@@ -37,8 +75,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`font-sans antialiased`}>
+    <html lang="en">
+      <body className={`${ebGaramond.variable} ${geistMono.variable} font-sans antialiased`}>
+        {siteConfig.features.underConstruction && <ConstructionBanner />}
         {children}
         <Analytics />
       </body>
