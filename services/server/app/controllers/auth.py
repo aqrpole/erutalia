@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends
 from datetime import datetime
 from app.schemas import HealthResponse
-from app.services.auth_client import AuthClient
+# from app.services.auth_client import AuthClient
+from app.services.auth_client import get_auth_client, verify_token, get_user, health_check, close_auth_client 
 
 router = APIRouter()  # This line is crucial
-auth_client = AuthClient()
+# auth_client = AuthClient()
 
 @router.get("/login")
 async def login():

@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings
 from pydantic import Field, field_validator
 from typing import List, Optional
 import os
+from pathlib import Path
 
 class Settings(BaseSettings):
     """Application settings"""
@@ -69,7 +70,8 @@ class Settings(BaseSettings):
     FALLBACK_TO_OLLAMA: bool = True
 
     class Config:
-        env_file = ".env"
+        #env_file = ".env"
+        env_file = Path(__file__).resolve().parents[4] / ".env"
         case_sensitive = False
 
 settings = Settings()

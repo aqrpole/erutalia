@@ -2,8 +2,10 @@
 docker-compose up --build
 
 # Or start individually
-docker-compose up -d postgres
+docker compose up -d postgres
+docker compose up postgres
 docker-compose up --build auth
 docker-compose up --build server
 
 we are in line 79 in server/config.py
+we need to solve the sudo of docker problem
