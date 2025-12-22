@@ -70,8 +70,9 @@ class Settings(BaseSettings):
     FALLBACK_TO_OLLAMA: bool = True
 
     class Config:
+        # .env can be found auto by docker compose
         #env_file = ".env"
-        env_file = Path(__file__).resolve().parents[4] / ".env"
+        #env_file = Path(__file__).resolve().parents[4] / ".env"
         case_sensitive = False
 
 settings = Settings()

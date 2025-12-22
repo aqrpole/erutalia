@@ -16,7 +16,7 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 # Copy application code (file structure needs to seen from root of projcet then relative path)
 #COPY services/server/app/ ./app/
 COPY services/server/app ./app
-COPY services/server/public ./public
+COPY services/server/public/front-end/out/ ./public
 COPY services/server/init.sql ./init.sql
 
 # Create non-root user

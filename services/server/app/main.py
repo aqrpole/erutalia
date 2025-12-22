@@ -1,16 +1,18 @@
 import asyncio
 import logging
-from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
+import os
+from pathlib                 import Path
+from contextlib              import asynccontextmanager
+from fastapi                 import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
+from fastapi.staticfiles     import StaticFiles
+from fastapi.responses       import JSONResponse, FileResponse
 
-from app.core.config import settings
-from app.utils.logging import setup_logging
-from app.core.database import init_db, close_db
+from app.core.config         import settings
+from app.utils.logging       import setup_logging
+from app.core.database       import init_db, close_db
 
-from app.controllers import health, chat, conversations, auth
+from app.controllers         import health, chat, conversations, auth
 from app.services.ollama_client import close_session as close_ollama_session
 
 # Setup logging
@@ -50,7 +52,7 @@ async def lifespan(app: FastAPI):
     """Application lifespan management"""
     # Startup
     logger.info("Starting University LLM Chatbot API Server")
-    
+
     # Initialize database connection with retry logic
     max_retries = 3
     for attempt in range(max_retries):
@@ -64,14 +66,10 @@ async def lifespan(app: FastAPI):
                 await asyncio.sleep(2)  # Wait 2 seconds before retry
             else:
                 logger.error("All database connection attempts failed. Starting without database.")
-    
+
     logger.info("API Server started successfully")
-    
-    yield    
-    logger.info("API Server started successfully")
-    
     yield
-    
+
     # Shutdown
     logger.info("Shutting down API Server")
     await close_db()
@@ -94,9 +92,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Mount static files (for Next.js build)
-app.mount("/static", StaticFiles(directory="public"), name="static")
 
 # Include available routers
 if health_available:
@@ -132,13 +127,20 @@ async def general_exception_handler(request, exc):
         content={"error": "Internal server error"}
     )
 
-@app.get("/")
-async def root():
-    return {"message": "University LLM Chatbot API", "version": "1.0.0"}
+#@app.get("/")
+#async def root():
+    #return {"message": "University LLM Chatbot API", "version": "1.0.0"}
 
 @app.get("/ping")
 async def root():
     return {"message": "pong"}
+
+nextjs_build = os.path.join ("front-end", ".next", "static")
+BASE_DIR     = Path("/app")  # ← Docker WORKDIR
+FRONTEND_DIR = BASE_DIR / "public"
+print ("Frontend dir:", FRONTEND_DIR)
+# Mount static files (for Next.js build)
+app.mount ("/", StaticFiles (directory=FRONTEND_DIR, html=True), name="front-end")
 
 if __name__ == "__main__":
     import uvicorn
