@@ -9,3 +9,5 @@ docker-compose up --build server
 
 we are in line 79 in server/config.py
 we need to solve the sudo of docker problem
+
+if not on ashwini's personal laptop, please install nvm, npm, next (js libs) for front-end
