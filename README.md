@@ -71,3 +71,14 @@ pip3 uninstall -y sentence-transformers torch torchvision torchaudio
 
 ## Qdrant Get details of a specific collection
 ```curl -X GET "http://localhost:6333/collections/university_documents" | jq```
+
+# For Ansible
+1. change in /infra/ansible/inventory.ini
+    - change IP Adress and user `SERVER_IP/localhost ansible_user=release/local`
+    - check ping pong `ansible web -i inventory.ini -m ping`
+    - run `ansible-playbook -i inventory.ini nginx.yml --ask-become-pass`
+Additonal commands
+    - `ansible web -i inventory.ini -m shell -a "uptime"`
+    - `ansible web -i inventory.ini -m whoami`
+See what would change, without changing anything.
+    - `ansible-playbook -i inventory.ini site.yml --check`
