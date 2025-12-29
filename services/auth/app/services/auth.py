@@ -1,10 +1,10 @@
 # services/auth-service/app/services/auth.py
-from datetime import datetime, timedelta
-from typing import Optional
-from app.repositories.user_repository import UserRepository
-from app.schemas.token import Token
-from app.core.security import create_access_token, create_refresh_token, verify_token
-from app.models.user import RefreshToken
+from datetime                     import datetime, timedelta
+from typing                       import Optional
+from repositories.user_repository import UserRepository
+from schemas.token                import Token
+from core.security                import create_access_token, create_refresh_token, verify_token
+from models.user                  import RefreshToken
 
 class AuthService:
     def __init__(self, user_repository: UserRepository):

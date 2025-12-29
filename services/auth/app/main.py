@@ -1,14 +1,15 @@
 # services/auth-service/app/main.py
 import logging
 import sys
-from fastapi import FastAPI, HTTPException, status
+from fastapi                 import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from contextlib import asynccontextmanager
-from app.core.config import settings
-from app.core.database import init_db, close_db, check_database_health
-from app.controllers.auth import router as auth_router
-from app.utils.logging import setup_logging
+from fastapi.responses       import JSONResponse
+from contextlib              import asynccontextmanager
+from core.config             import settings
+from core.database           import init_db, close_db, check_database_health
+from controllers.auth        import router as auth_router
+from utils.logging           import setup_logging
+from datetime                import datetime, timezone
 
 logger = setup_logging()
 
@@ -69,27 +70,27 @@ async def health_check():
             return JSONResponse(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 content={
-                    "status": "unhealthy",
-                    "service": "auth",
+                    "status"  : "unhealthy",
+                    "service" : "auth",
                     "database": "unavailable",
-                    "message": "Database connection failed"
+                    "message" : "Database connection failed"
                 }
             )
 
         return {
-            "status": "healthy",
-            "service": "auth",
-            "database": "connected",
-            "timestamp": "2024-01-01T00:00:00Z"  # You'd use actual timestamp
+            "status"   : "healthy",
+            "service"  : "auth",
+            "database" : "connected",
+            "timestamp": datetime.now (timezone.utc).isoformat ()  # You'd use actual timestamp
         }
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         return JSONResponse(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             content={
-                "status": "unhealthy",
+                "status" : "unhealthy",
                 "service": "auth",
-                "error": str(e)
+                "error"  : str(e)
             }
         )
 

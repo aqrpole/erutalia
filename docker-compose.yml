@@ -15,8 +15,32 @@ services:
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     stdin_open: true
     tty: true
+    networks:
+      - erunet
     env_file:
       - .env
+
+  auth:
+    build:
+      context: .
+      dockerfile: services/auth/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:chatbot321@postgres:5432/chatbot_auth
+      - DEBUG=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./services/auth/app:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+    stdin_open: true
+    tty: true
+    env_file:
+      - services/auth/.env
+    networks:
+      - erunet
 
   postgres:
     image: postgres:15-alpine
@@ -29,11 +53,15 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./services/server/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./services/auth/init.sql:/docker-entrypoint-initdb.d/02-auth.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - erunet
+
   qdrant:
     image: qdrant/qdrant:latest
     ports:
@@ -43,6 +71,8 @@ services:
       - qdrant_data:/qdrant/storage
     environment:
       - QDRANT__SERVICE__HTTP_PORT=6333
+    networks:
+      - erunet
 
 volumes:
   postgres_data:

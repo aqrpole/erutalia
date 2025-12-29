@@ -5,9 +5,10 @@ from datetime import datetime
 
 class UserBase(BaseModel):
     """Base user schema"""
-    email: EmailStr
-    username: str
+    email    : EmailStr
+    username : str
     full_name: Optional[str] = None
+    role     : str = "user"   # ← add this with a default (AI didn't write this code)
 
 class UserCreate(UserBase):
     """User creation schema"""
@@ -24,8 +25,10 @@ class UserResponse(UserBase):
     """User response schema"""
     id: str
     is_active: bool
+    is_verified: bool
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime] = None  # <-- make this optional
+    last_login: Optional[datetime] = None
 
     class Config:
         from_attributes = True

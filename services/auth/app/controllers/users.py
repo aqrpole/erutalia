@@ -1,9 +1,9 @@
 # services/auth-service/app/controllers/users.py
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.repositories.user_repository import UserRepository
-from app.core.database import get_db
-from app.schemas.user import UserResponse
+from fastapi                      import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio       import AsyncSession
+from repositories.user_repository import UserRepository
+from core.database                import get_db
+from schemas.user                 import UserResponse
 
 router = APIRouter(prefix="/users", tags=["users"])
 

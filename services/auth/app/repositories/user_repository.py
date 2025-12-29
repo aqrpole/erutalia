@@ -1,11 +1,11 @@
 # services/auth-service/app/repositories/user_repository.py
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
-from sqlalchemy.sql import func
-from app.models.user import User, RefreshToken
-from app.schemas.user import UserCreate, UserUpdate
-from app.core.security import get_password_hash, verify_password
-from typing import Optional
+from sqlalchemy             import select, update
+from sqlalchemy.sql         import func
+from models.user            import User, RefreshToken
+from schemas.user           import UserCreate, UserUpdate
+from core.security          import get_password_hash, verify_password
+from typing                 import Optional
 
 class UserRepository:
     def __init__(self, session: AsyncSession):
