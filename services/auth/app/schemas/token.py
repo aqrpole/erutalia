@@ -1,5 +1,5 @@
 # services/auth/app/schemas/token.py
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
 
@@ -18,7 +18,7 @@ class TokenData(BaseModel):
 
 class LoginRequest(BaseModel):
     """Login request schema"""
-    username: str
+    email   : EmailStr
     password: str
 
 class RefreshTokenRequest(BaseModel):

@@ -1,7 +1,7 @@
 # services/auth-service/app/controllers/auth.py
 from fastapi                      import APIRouter, Depends, HTTPException, status
 from fastapi.security             import HTTPBearer
-from schemas.token                import Token, LoginRequest
+from schemas.token                import Token, LoginRequest, RefreshTokenRequest
 from schemas.user                 import UserCreate, UserResponse
 from services.auth                import AuthService
 from repositories.user_repository import UserRepository
@@ -12,15 +12,17 @@ import logging
 router   = APIRouter()
 security = HTTPBearer()
 
-@router.post("/login", response_model=Token)
+@router.post ("/login", response_model=Token)
 async def login(
     login_data: LoginRequest,
     db: AsyncSession = Depends(get_db)
 ):
-    user_repo = UserRepository(db)
-    auth_service = AuthService(user_repo)
+    user_repo    = UserRepository (db)
+    auth_service = AuthService (user_repo)
 
-    token = await auth_service.login(login_data.username, login_data.password)
+    import logging
+    logging.info (f"[LOGIN]---------------- Attempt email={login_data.email} pass={login_data.password}")
+    token = await auth_service.login (login_data.email, login_data.password)
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -29,19 +31,21 @@ async def login(
 
     return token
 
-@router.post("/refresh", response_model=Token)
-async def refresh_token(
-    refresh_token: str,
-    db: AsyncSession = Depends(get_db)
+@router.post ("/refresh", response_model=Token)
+async def refresh_token (
+    request: RefreshTokenRequest,  # Accept body not query param
+    db     : AsyncSession = Depends (get_db)
 ):
-    user_repo = UserRepository(db)
-    auth_service = AuthService(user_repo)
+    user_repo    = UserRepository (db)
+    auth_service = AuthService (user_repo)
 
-    token = await auth_service.refresh_token(refresh_token)
+    import logging
+    logging.info (f"rfersh -------------------- token body check : {refresh_token} {request.refresh_token} ")
+    token = await auth_service.refresh_token (request.refresh_token)
     if not token:
-        raise HTTPException(
+        raise HTTPException (
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid refresh token"
+            detail     ="Invalid refresh token"
         )
 
     return token
@@ -88,10 +92,10 @@ async def register(
 async def validate_token (token: str = Depends (security)):
     from core.security import verify_token
 
-    payload = verify_token(token.credentials)
+    payload = verify_token (token.credentials, token_type="refresh")
     if not payload:
-        raise HTTPException(
+        raise HTTPException (
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token"
+            detail     ="Invalid token"
         )
-    return {"valid": True, "user_id": payload.get("sub")}
+    return {"valid": True, "user_id": payload.get ("sub")}

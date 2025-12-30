@@ -43,14 +43,16 @@ def create_refresh_token(data: dict):
     encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
     return encoded_jwt
 
-def verify_token (token: str):
+def verify_token (token: str, token_type: Optional[str] = None):
     try:
+        import logging
+        logging.info (f"jwt------------------------ module is: {jwt}")
         payload = jwt.decode (
             token,
             settings.JWT_SECRET_KEY,
             algorithms=[settings.JWT_ALGORITHM],
-            audience  ="erutalia-api",
-            issuer    ="auth-service"
+            #audience  ="erutalia-api",
+            #issuer    ="auth-service"
         )
 
         if token_type == "refresh" and payload.get ("type") != "refresh":

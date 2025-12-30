@@ -37,11 +37,12 @@ class UserRepository:
         await self.session.refresh(user)
         return user
 
-    async def authenticate_user(self, username: str, password: str) -> Optional[User]:
-        user = await self.get_user_by_username(username)
+    async def authenticate_user(self, email: str, password: str) -> Optional[User]:
+        user = await self.get_user_by_email (email)
+
         if not user:
             return None
-        if not verify_password(password, user.hashed_password):
+        if not verify_password (password, user.hashed_password):
             return None
         return user
 
