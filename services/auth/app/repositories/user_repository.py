@@ -1,6 +1,6 @@
 # services/auth-service/app/repositories/user_repository.py
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy             import select, update
+from sqlalchemy             import select, update, delete
 from sqlalchemy.sql         import func
 from models.user            import User, RefreshToken
 from schemas.user           import UserCreate, UserUpdate
@@ -50,3 +50,49 @@ class UserRepository:
         stmt = update(User).where(User.id == user_id).values(last_login=func.now())
         await self.session.execute(stmt)
         await self.session.commit()
+
+    async def revoke_refresh_token (self, user_id: str, token: str) -> None:
+        await self.session.execute (
+            delete (RefreshToken).where (
+                RefreshToken.user_id == user_id,
+                RefreshToken.token   == token
+            )
+        )
+        await self.session.commit ()
+
+    async def store_refresh_token (self, user_id: str, token: str):
+        # remove existing token(s) for this user
+        await self.session.execute (
+            delete (RefreshToken).where (RefreshToken.user_id == user_id)
+        )
+
+        refresh_token = RefreshToken (
+            user_id = user_id,
+            token   = token
+        )
+
+        self.session.add (refresh_token)
+        await self.session.commit ()
+
+    async def verify_refresh_token (self, user_id: str, token: str) -> bool:
+        result = await self.session.execute (
+            select (RefreshToken).where (
+                RefreshToken.user_id == user_id,
+                RefreshToken.token   == token
+            )
+        )
+        return result.scalar_one_or_none() is not None
+
+    async def update_refresh_token (self, user_id: str, old_token: str,
+                                    new_token: str):
+        await self.session.execute (
+            delete (RefreshToken).where (
+                RefreshToken.user_id == user_id,
+                RefreshToken.token   == old_token
+            )
+        )
+
+        self.session.add (
+            RefreshToken (user_id=user_id, token=new_token)
+        )
+        await self.session.commit ()

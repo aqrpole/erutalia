@@ -9,8 +9,8 @@ from core.database                import get_db
 from sqlalchemy.ext.asyncio       import AsyncSession
 import logging
 
-router   = APIRouter()
-security = HTTPBearer()
+router   = APIRouter ()
+security = HTTPBearer ()
 
 @router.post ("/login", response_model=Token)
 async def login(
@@ -99,3 +99,13 @@ async def validate_token (token: str = Depends (security)):
             detail     ="Invalid token"
         )
     return {"valid": True, "user_id": payload.get ("sub")}
+
+@router.post ("/logout", status_code=204)
+async def logout (
+    request : RefreshTokenRequest,
+    db      : AsyncSession = Depends (get_db)
+):
+    auth_service = AuthService (UserRepository (db))
+    await auth_service.logout (request.refresh_token)
+
+    return {"message": "Logged out successfully"}

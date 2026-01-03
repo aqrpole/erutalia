@@ -64,14 +64,29 @@ class AuthService:
             refresh_token=new_refresh_token
         )
 
-    async def store_refresh_token(self, user_id: str, token: str):
+    async def store_refresh_token (self, user_id: str, token: str):
         # Implementation for storing refresh tokens
-        pass
-    
-    async def verify_refresh_token(self, user_id: str, token: str) -> bool:
+        self.user_repo.store_refresh_token (user_id, token)
+        #pass
+
+    async def verify_refresh_token (self, user_id: str, token: str) -> bool:
         # Implementation for verifying refresh tokens
-        return True
-    
-    async def update_refresh_token(self, user_id: str, old_token: str, new_token: str):
+        return  await self.user_repo.verify_refresh_token (user_id, token)
+        #return True
+
+    async def update_refresh_token (self, user_id: str, old_token: str, new_token: str):
         # Implementation for updating refresh tokens
-        pass
+        await self.user_repo.update_refresh_token (user_id, old_token, new_token)
+        #pass
+
+    async def logout (self, refresh_token: str) -> None:
+        payload = verify_token (refresh_token)
+
+        if not payload or payload.get ("type") != "refresh":
+            return # idempotent logout
+
+        user_id = payload.get ("sub")
+        if not user_id:
+            return
+
+        await self.user_repo.revoke_refresh_token (user_id, refresh_token)
