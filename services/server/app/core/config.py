@@ -2,10 +2,10 @@
 Configuration settings using Pydantic
 """
 from pydantic_settings import BaseSettings
-from pydantic import Field, field_validator
-from typing import List, Optional
+from pydantic          import Field, field_validator
+from typing            import List, Optional
 import os
-from pathlib import Path
+from pathlib           import Path
 
 class Settings(BaseSettings):
     """Application settings"""
@@ -37,10 +37,10 @@ class Settings(BaseSettings):
     DATABASE_MAX_OVERFLOW: int = 30
 
     # Auth Service
-    AUTH_SERVICE_URL: str = "10.200.189.118:8001"
+    AUTH_SERVICE_URL: str = "localhost:8001"
     AUTH_REQUIRED: bool = True
     JWT_ALGORITHM: str = "HS256"
-    JWT_SECRET_KEY: str = "your-secret-key-change-in-production"
+    JWT_SECRET_KEY: str
 
     # Ollama AWS
     OLLAMA_AWS_URL: str = "https://your-ollama-aws-endpoint.amazonaws.com"
@@ -50,7 +50,7 @@ class Settings(BaseSettings):
     EMBEDDING_DIM: int = 384  # all-minilm dimension
 
     # Qdrant
-    QDRANT_URL: str = "http://qdrant:6333"
+    QDRANT_URL: str
     QDRANT_COLLECTION: str = "university_documents"
 
     # Logging
@@ -58,8 +58,9 @@ class Settings(BaseSettings):
 
     # Bedrock Configuration
     BEDROCK_API_KEY: str
-    BEDROCK_REGION: str = "us-east-2"  # Ohio region
-    BEDROCK_MODEL_ID: str = "openai.gpt-oss-20b-1:0"
+    BEDROCK_REGION: str = "us-east-1"  # Ohio region
+    BEDROCK_MODEL_ID: str
+    #BEDROCK_EMBEDDING_MODEL_ID embeddings generator for future use
 
     # Alternative: If using IAM credentials instead of API key
     AWS_ACCESS_KEY_ID: str

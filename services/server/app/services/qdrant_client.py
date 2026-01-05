@@ -1,26 +1,32 @@
 # services/server/app/services/qdrant_client.py
 import logging
-from qdrant_client import QdrantClient
+from qdrant_client        import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, MatchValue
-from typing import List, Dict, Any, Optional
+from typing               import List, Dict, Any, Optional
 import uuid
 import asyncio
-from functools import partial
+from functools            import partial
 
-from app.core.config import settings
+from app.core.config      import settings
 
 logger = logging.getLogger(__name__)
 
 # Global client instance
 _qdrant_client = None
 
-def get_qdrant_client(host: str = "localhost", port: int = 6333) -> QdrantClient:
+def get_qdrant_client () -> QdrantClient:
     """Get or create Qdrant client"""
     global _qdrant_client
-    if _qdrant_client is None:
-        _qdrant_client = QdrantClient(settings.QDRANT_URL)
-        logger.info(f"Connected to Qdrant at {host}:{port}")
-    return _qdrant_client
+    for attempt in range (5):
+        try:
+            if _qdrant_client is None:
+                _qdrant_client = QdrantClient (url=settings.QDRANT_URL)
+                logger.info (f"Connected to Qdrant URL at {settings.QDRANT_URL}")
+                return _qdrant_client
+        except Exception as e:
+            logger.warning (f"Qdrant connection retry {attempt+1}/5: {e}")
+            #await asyncio.sleep (1) #sleep line
+    raise RuntimeError ("Qdrant not reachable after retries")
 
 async def ensure_collection_exists(collection_name: str = "documents", vector_size: int = 384):
     """Create collection if it doesn't exist"""
@@ -30,7 +36,7 @@ async def ensure_collection_exists(collection_name: str = "documents", vector_si
         loop = asyncio.get_event_loop()
         collections = await loop.run_in_executor(None, client.get_collections)
         collection_names = [col.name for col in collections.collections]
-        
+
         if collection_name not in collection_names:
             await loop.run_in_executor(
                 None,
@@ -41,7 +47,7 @@ async def ensure_collection_exists(collection_name: str = "documents", vector_si
             logger.info(f"Created Qdrant collection: {collection_name}")
         else:
             logger.info(f"Qdrant collection already exists: {collection_name}")
-            
+
     except Exception as e:
         logger.error(f"Error ensuring collection exists: {e}")
         raise
@@ -51,7 +57,7 @@ async def store_embeddings(documents: List[Dict[str, Any]], collection_name: str
     client = get_qdrant_client()
     try:
         loop = asyncio.get_event_loop()
-        
+
         points = []
         for doc in documents:
             point = PointStruct(
@@ -68,7 +74,7 @@ async def store_embeddings(documents: List[Dict[str, Any]], collection_name: str
                 }
             )
             points.append(point)
-        
+
         # Run upsert in thread pool
         await loop.run_in_executor(
             None,
@@ -76,10 +82,10 @@ async def store_embeddings(documents: List[Dict[str, Any]], collection_name: str
             collection_name,
             points
         )
-        
+
         logger.info(f"Stored {len(points)} documents in Qdrant collection: {collection_name}")
         return True
-        
+
     except Exception as e:
         logger.error(f"Error storing embeddings in Qdrant: {e}")
         return False
@@ -95,7 +101,7 @@ async def search_similar(query_vector: List[float], limit: int = 5) -> List[Dict
     client = get_qdrant_client()
     try:
         # loop = asyncio.get_event_loop()
-        
+
         # Run search in thread pool
         # results = await loop.run_in_executor(
             # None, client.search, collection_name, query_embedding, limit,score_threshold)
@@ -115,7 +121,7 @@ async def search_similar(query_vector: List[float], limit: int = 5) -> List[Dict
                 "source": result.payload.get("source", ""),
                 "metadata": result.payload.get("metadata", {})
             })
-        
+
         logger.info(f"Found {len(similar_docs)} similar documents with score >= {score_threshold}")
         return similar_docs """
         return [
@@ -127,7 +133,7 @@ async def search_similar(query_vector: List[float], limit: int = 5) -> List[Dict
             }
             for hit in results
         ]
-        
+
     except Exception as e:
         logger.error(f"Qdrant search error: {str(e)}")
         return []
@@ -150,7 +156,7 @@ async def get_collection_info(collection_name: str = "documents") -> Optional[Di
     try:
         loop = asyncio.get_event_loop()
         collection_info = await loop.run_in_executor(None, client.get_collection, collection_name)
-        
+
         return {
             "name": collection_name,
             "vectors_count": collection_info.vectors_count,

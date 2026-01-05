@@ -48,7 +48,6 @@ async def init_db():
     except Exception as e:
         logger.error(f"Error initializing database: {e}")
         raise
-    
 
 async def close_db():
     """Close database connection"""

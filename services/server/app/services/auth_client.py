@@ -1,7 +1,9 @@
 # services/server/app/services/auth_client.py
 import httpx
 import logging
-from typing import Optional, Dict, Any
+from typing          import Optional, Dict, Any
+from jose            import jwt, JWTError, ExpiredSignatureError
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -15,21 +17,47 @@ def get_auth_client(base_url: str = "http://localhost:8001") -> httpx.AsyncClien
         _auth_client = httpx.AsyncClient(base_url=base_url, timeout=30.0)
     return _auth_client
 
-async def verify_token(token: str) -> Optional[Dict[str, Any]]:
+async def verify_token (token: str) -> Optional[Dict[str, Any]]:
     """Verify JWT token with auth service"""
-    client = get_auth_client()
+    """client = get_auth_client ()
     try:
         headers = {"Authorization": f"Bearer {token}"}
         response = await client.get("/api/v1/auth/verify", headers=headers)
-        
         if response.status_code == 200:
             return response.json()
         else:
             logger.warning(f"Token verification failed: {response.status_code}")
             return None
-            
     except Exception as e:
         logger.error(f"Auth service error: {e}")
+        return None"""
+
+    """Verify JWT token locally, because all calls calling Auth service
+    makes it a hot bottleneck. so check internally with JWT token"""
+    try:
+        print (token)
+
+        payload = jwt.decode (
+            token,
+            settings.JWT_SECRET_KEY,
+            algorithms=[settings.JWT_ALGORITHM],
+        )
+        #logger.warning(f"JWT payload received: {payload}")
+        # Enforce access token only (permissoin checking which is not encoded
+        # into token creation)
+        #if payload.get ("type") != "access":
+            #logging.warning ("Token type is not 'access'")
+            #return None
+        return payload
+
+    except ExpiredSignatureError:
+        logging.error (f"JWT token expired")
+        return None
+    except JWTError as e:
+        logging.error (f"JWT Error: {e}")
+        return None
+    except Exception as e:
+        logging.error (f"Unexpected error verifying token: {e}")
         return None
 
 async def get_user(user_id: str) -> Optional[Dict[str, Any]]:

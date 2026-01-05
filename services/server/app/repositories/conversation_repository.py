@@ -1,24 +1,24 @@
-# services/api-server/app/repositories/conversation_repository.py
+# services/server/app/repositories/conversation_repository.py
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete, update, or_, desc
-from typing import List, Optional, Dict, Any
-from app.models import Conversation, Message
-from app.schemas import ConversationResponse, MessageResponse
+from sqlalchemy             import select, delete, update, or_, desc
+from typing                 import List, Optional, Dict, Any
+from app.models             import Conversation, Message
+from app.schemas            import ConversationResponse, MessageResponse
 import logging
-from app.utils.idgen import generate_ulid
+from app.utils.idgen        import generate_ulid
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger (__name__)
 
-async def create_conversation(session: AsyncSession, conversation_id: str, title: str, user_id: str) -> Conversation:
+async def create_conversation (session: AsyncSession, conversation_id: str, title: str, user_id: str) -> Conversation:
     """Create a new conversation for a specific user"""
-    conversation = Conversation(
-        id=conversation_id,
+    conversation = Conversation (
+        id     =conversation_id,
         user_id=user_id,
-        title=title
+        title  =title
     )
-    session.add(conversation)
-    await session.commit()
-    await session.refresh(conversation)
+    session.add (conversation)
+    await session.commit ()
+    await session.refresh (conversation)
     return conversation
 
 async def get_conversation(session: AsyncSession, conversation_id: str, user_id: Optional[str] = None) -> Optional[ConversationResponse]:
@@ -85,15 +85,15 @@ async def get_all_conversations(session: AsyncSession, skip: int = 0, limit: int
         for conv in conversations
     ]
 
-async def add_message(session: AsyncSession, conversation_id: str, role: str, content: str, metadata: dict = None) -> Message:
+async def add_message(session: AsyncSession, conversation_id: str, role: str, content: str) -> Message:
     """Add message to conversation"""
     message = Message(
         conversation_id=conversation_id,
         #role=role,
         is_user_message=(role == "user"), # Changed from 'role' to 'is_user_message'
         content=content,
-        # metadata=metadata or {}
-        message_metadata=metadata or {}    # Changed from 'metadata' to 'message_metadata'
+        #metadata=metadata or {}
+        #message_metadata=metadata or {}    # Changed from 'metadata' to 'message_metadata'
     )
     session.add(message)
     await session.commit()

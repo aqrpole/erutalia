@@ -11,6 +11,10 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements and install Python dependencies
 #COPY ../../requirements.txt .
 COPY requirements.txt .
+
+#CPU based sentence transformers req (for embeddings stuff)
+RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy application code (file structure needs to seen from root of projcet then relative path)

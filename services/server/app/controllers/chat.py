@@ -1,12 +1,16 @@
 import logging
-from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
-from fastapi import status
-from app.schemas import ChatRequest, ChatResponse
-from app.services.qdrant_client import QdrantClient
-from app.core.auth import get_current_active_user, require_user
-from app.utils.idgen import generate_ulid
-from app.services.ollama_client import generate_response, get_session
+from fastapi                                  import APIRouter, Depends, HTTPException
+from fastapi                                  import status, WebSocket, WebSocketDisconnect
+from app.schemas                              import ChatRequest, ChatResponse
+from app.services.qdrant_client               import search_similar
+from app.core.auth                            import get_current_active_user, require_user
+from app.utils.idgen                          import generate_ulid
+#from app.services.ollama_client               import generate_response, get_session, generate_embeddings
+from app.services.bedrock_client              import (generate_response,
+                                                      generate_embeddings)
 from app.repositories.conversation_repository import get_conversation, create_conversation, add_message
+from app.core.database                        import get_db
+from sqlalchemy.ext.asyncio                   import AsyncSession
 
 router = APIRouter()  # This line is crucial
 logger = logging.getLogger(__name__)
@@ -22,25 +26,29 @@ async def send_message():
 @router.post("/chat", response_model=ChatResponse)
 async def chat(
     request: ChatRequest,
-    current_user: dict = Depends(require_user),  # Require user role
-    qdrant_client: QdrantClient = Depends(lambda: qdrant_client),
+    current_user: dict   =Depends (require_user),  # Require user role
+    session: AsyncSession=Depends (get_db)
 ):
     """Send a message to the LLM and get response (Authenticated)"""
     try:
         # Call Ollama (functional) directly
-        response_text = await generate_response (
-            prompt=request.prompt,
-            context=request.context  # optional
-        )
+        #response_text = await generate_response (
+        #    prompt=request.prompt,
+        #    context=request.context  # optional
+        #)
 
-        user_id = current_user.get("user_id")  # From JWT token
+        user_id = current_user.get ("sub")  # From JWT token
+        #logger.info (f"user_id= {type (user_id)} - {user_id}")
 
         # Get relevant context from Qdrant
-        query_embedding = await generate_embeddings(request.message)
-        relevant_context = await qdrant_client.search_similar(
-            query_embedding, 
-            limit=3
-        )
+        query_embedding  = await generate_embeddings (request.message)
+        try:
+            relevant_context = await search_similar (
+                query_embedding,
+                limit=3
+            )
+        except Exception as e:
+            logger.warning (f"Qdrant unavailable: {e}")
 
         # Build context-aware prompt
         context_text = "\n".join([doc["content"] for doc in relevant_context])
@@ -55,29 +63,36 @@ async def chat(
 
         # Create or update conversation with user_id
         if not request.conversation_id:
-            conversation_id = generate_ulid()
-            await create_conversation(
-                conversation_id, 
-                request.message[:100] + "...",
-                user_id=user_id  # Associate with authenticated user
+            conversation_id = generate_ulid ()
+            await create_conversation (
+                session        =session,
+                conversation_id=conversation_id,
+                title          =request.message[:100] + "...",
+                user_id        =user_id,  # Associate with authenticated user
             )
         else:
             conversation_id = request.conversation_id
 
         # Save messages
-        message_id = generate_ulid()
+        message_id = generate_ulid ()
         await add_message(
-            conversation_id, "user", request.message
+            session        =session,
+            conversation_id=conversation_id,
+            role           ="user",
+            content        =request.message
         )
         await add_message(
-            conversation_id, "assistant", response
+            session        =session,
+            conversation_id=conversation_id,
+            role           ="assistant",
+            content        =response
         )
 
         return ChatResponse(
             conversation_id=conversation_id,
-            message_id=message_id,
-            response=response,
-            sources=relevant_context
+            message_id     =message_id,
+            response       =response,
+            sources        =relevant_context
         )
 
     except Exception as e:
