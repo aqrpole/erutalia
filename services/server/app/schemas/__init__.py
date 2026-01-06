@@ -46,7 +46,7 @@ class ConversationResponse(BaseModel):
     id: str
     title: str
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime] = None
 
 class MessageResponse(BaseModel):
     id: str

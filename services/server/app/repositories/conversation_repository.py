@@ -42,7 +42,7 @@ async def get_conversation(session: AsyncSession, conversation_id: str, user_id:
         )
     return None
 
-async def get_conversations(session: AsyncSession, user_id: str, skip: int = 0, limit: int = 50) -> List[ConversationResponse]:
+async def get_conversations (session: AsyncSession, user_id: str, skip: int = 0, limit: int = 50) -> List[ConversationResponse]:
     """Get paginated list of conversations for a specific user"""
     result = await session.execute(
         select(Conversation)
