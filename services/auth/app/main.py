@@ -1,4 +1,4 @@
-# services/auth-service/app/main.py
+# services/auth/app/main.py
 import logging
 import sys
 from fastapi                 import FastAPI, HTTPException, status
@@ -8,6 +8,7 @@ from contextlib              import asynccontextmanager
 from core.config             import settings
 from core.database           import init_db, close_db, check_database_health
 from controllers.auth        import router as auth_router
+from controllers.user        import router as user_router
 from utils.logging           import setup_logging
 from datetime                import datetime, timezone
 
@@ -51,6 +52,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
+app.include_router (user_router, prefix="/api/v1/auth")
 
 # Global exception handler
 @app.exception_handler(Exception)

@@ -11,7 +11,7 @@ class UserRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_user_by_id(self, user_id: str) -> Optional[User]:
+    async def get_user_by_id (self, user_id: str) -> Optional[User]:
         result = await self.session.execute(select(User).where(User.id == user_id))
         return result.scalar_one_or_none()
 
@@ -94,5 +94,11 @@ class UserRepository:
 
         self.session.add (
             RefreshToken (user_id=user_id, token=new_token)
+        )
+        await self.session.commit ()
+
+    async def delete_user (self, user_id: str) -> None:
+        await self.session.execute (
+            delete (User).where (User.id == user_id)
         )
         await self.session.commit ()

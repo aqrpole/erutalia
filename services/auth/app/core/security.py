@@ -1,10 +1,14 @@
-# services/auth-service/app/core/security.py
-from datetime        import datetime, timedelta
-from typing          import Optional
-from jose            import JWTError, jwt
-from passlib.context import CryptContext
-from core.config     import settings
+# services/auth/app/core/security.py
+from datetime         import datetime, timedelta
+from typing           import Optional
+from jose             import JWTError, jwt
+from passlib.context  import CryptContext
+from core.config      import settings
 import hashlib
+from fastapi          import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+security = HTTPBearer ()
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -61,3 +65,22 @@ def verify_token (token: str, token_type: Optional[str] = None):
         return payload
     except JWTError:
         return None
+
+def require_admin (
+    token: HTTPAuthorizationCredentials = Depends (security),
+):
+    payload = verify_token (token.credentials)
+
+    if not payload:
+        raise HTTPException (
+            status_code = status.HTTP_401_UNAUTHORIZED,
+            detail      = "Invalid token"
+        )
+
+    if payload.get ("role") != "admin":
+        raise HTTPException (
+            status_code = status.HTTP_403_FORBIDDEN,
+            detail      = "Admin privileges required"
+        )
+
+    return payload

@@ -1,4 +1,4 @@
-# services/auth-service/app/controllers/auth.py
+# services/auth/app/controllers/auth.py
 from fastapi                      import APIRouter, Depends, HTTPException, status
 from fastapi.security             import HTTPBearer
 from schemas.token                import Token, LoginRequest, RefreshTokenRequest
