@@ -5,6 +5,9 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
+    build-essential \
+    libgl1 \
+    libglib2.0-0 \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -13,7 +16,11 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 
 #CPU based sentence transformers req (for embeddings stuff)
-RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+RUN pip3 install --no-cache-dir \
+    torch==2.2.2 \
+    torchvision==0.17.2 \
+    torchaudio==2.2.2 \
+    --index-url https://download.pytorch.org/whl/cpu
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 
