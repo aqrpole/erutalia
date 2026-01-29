@@ -6,7 +6,7 @@ from contextlib              import asynccontextmanager
 from fastapi                 import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles     import StaticFiles
-from fastapi.responses       import JSONResponse, FileResponse
+from fastapi.responses       import JSONResponse, FileResponse, HTMLResponse
 
 from app.core.config         import settings
 from app.utils.logging       import setup_logging
@@ -127,11 +127,33 @@ async def general_exception_handler(request, exc):
         content={"error": "Internal server error"}
     )
 
-#@app.get("/")
-#async def root():
-    #return {"message": "University LLM Chatbot API", "version": "1.0.0"}
+@app.get ("/api/contact-email", response_class=HTMLResponse)
+async def contact_email ():
+    """
+    Redirects user to mail client without exposing email in frontend.
+    Else shows the email if no deafult iemail-client present.
+    """
+    email = settings.CONTACT_EMAIL
 
-@app.get("/ping")
+    return f"""
+        <html>
+            <head>
+                <title>Contact Erutalia</title>
+                <meta http-equiv="refresh" content="0;url=mailto:{email}">
+            </head>
+            <body style="font-family: sans-serif; padding: 2rem;">
+                <p>
+                    If your email app didn’t open,
+                    you can contact us at:
+                </p>
+                <p>
+                    <strong>{email}</strong>
+                </p>
+            </body>
+        </html>
+    """
+
+@app.get ("/ping")
 async def root():
     return {"message": "pong"}
 

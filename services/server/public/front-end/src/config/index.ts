@@ -28,8 +28,9 @@ export const config = {
   social: {
     linkedin : "https://linkedin.com/company/erutalia",
     instagram: "https://instagram.com/erutalia",
-    twitter  : "https://twitter.com/erutalia",
-    github   : "https://github.com/erutalia",
+    twitter  : "https://twitter.com/erutalia", //NOT CREATED
+    github   : "https://github.com/erutalia", //NOT CREATED
+    facebook : "https://www.facebook.com/Erutalia",
   },
   
   // Blog Featured Posts

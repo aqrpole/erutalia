@@ -2,7 +2,7 @@
 
 import React                            from "react";
 import Link                             from "next/link";
-import { Linkedin, Instagram, Twitter } from "lucide-react";
+import { Linkedin, Instagram, Facebook } from "lucide-react";
 import { config }                       from "@/config";
 import { useLanguage }                  from "@/contexts/LanguageContext";
 
@@ -45,13 +45,13 @@ export const Footer: React.FC = () => {
                                 <Instagram className="w-5 h-5" />
                             </a>
                             <a
-                                href={config.social.twitter}
+                                href={config.social.facebook}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="p-2 rounded-full bg-background hover:bg-primary hover:text-primary-foreground transition-colors"
-                                aria-label="Twitter"
+                                aria-label="Facebook"
                             >
-                                <Twitter className="w-5 h-5" />
+                                <Facebook className="w-5 h-5" />
                             </a>
                         </div>
                     </div>

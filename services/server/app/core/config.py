@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     PORT: int = 8000
     DEBUG: bool = False
 
+    # Contact
+    CONTACT_EMAIL: str = "ashwini.erutalia@trustpec.it"
+
     # CORS
     CORS_ORIGINS: List[str] = Field(default_factory=list)
 
