@@ -19,6 +19,7 @@ const KNOWN_ROUTES = [
     "/dashboard",
     "/privacy",
     "/terms",
+    "/product/dicopia-backup-software",
 ];
 
 export function middleware (request: NextRequest) {

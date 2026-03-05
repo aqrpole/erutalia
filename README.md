@@ -76,7 +76,8 @@ pip3 uninstall -y sentence-transformers torch torchvision torchaudio
 1. change in /infra/ansible/inventory.ini
     - change IP Adress and user `SERVER_IP/localhost ansible_user=release/local`
     - check ping pong `ansible web -i inventory.ini -m ping`
-    - run `ansible-playbook -i inventory.ini nginx.yml --ask-become-pass`
+    - run for prod `ansible-playbook -i inventory.ini nginx.yml --ask-become-pass`
+    - run for local `ansible-playbook -i inventory.local.ini nginx.yml --ask-become-pass`
 Additonal commands
     - `ansible web -i inventory.ini -m shell -a "uptime"`
     - `ansible web -i inventory.ini -m whoami`

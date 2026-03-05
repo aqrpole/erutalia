@@ -153,16 +153,20 @@ async def contact_email ():
         </html>
     """
 
-@app.get ("/ping")
+@app.get ("/api/ping")
 async def root():
     return {"message": "pong"}
+
+""" created separate dokcer image for front-end
 
 nextjs_build = os.path.join ("front-end", ".next", "static")
 BASE_DIR     = Path("/app")  # ← Docker WORKDIR
 FRONTEND_DIR = BASE_DIR / "public"
 print ("Frontend dir:", FRONTEND_DIR)
 # Mount static files (for Next.js build)
-app.mount ("/", StaticFiles (directory=FRONTEND_DIR, html=True), name="front-end")
+app.mount ("/", StaticFiles (directory=FRONTEND_DIR, html=True),
+           name="front-end")
+"""
 
 if __name__ == "__main__":
     import uvicorn

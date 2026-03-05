@@ -20,6 +20,19 @@ services:
     env_file:
       - .env
 
+  frontend:
+    build:
+      context: ./services/server/public/front-end
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - server
+    networks:
+      - erunet
+
   auth:
     build:
       context: .

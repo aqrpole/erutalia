@@ -23,14 +23,14 @@ export const metadata: Metadata = {
         type: "website",
         images: [
             {
-                url: "https://lovable.dev/opengraph-image-p98pqg.png",
+                url: "https://erutalia.com/opengraph-image-p98pqg.png",
             },
         ],
     },
     twitter: {
         card: "summary_large_image",
         site: "@Lovable",
-        images: ["https://lovable.dev/opengraph-image-p98pqg.png"],
+        images: ["https://erutalia.com/opengraph-image-p98pqg.png"],
     },
 };
 

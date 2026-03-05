@@ -2,7 +2,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     //for exporting
-    output: "export",
+    //output: "export", //was req. for expoeting 100% as static. now swithing to separet ps for this frontend
+    output: "standalone",
 
     reactStrictMode: true,
     //swcMinify: true,//deleted this line because causes warning
