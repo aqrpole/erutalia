@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext,
     useState, useCallback, useEffect } from "react";
-import { api }                         from "@/lib/api";
+import { api }                         from "@/libs/api";
 const STORAGE_PREFIX = "erutalia:";
 
 interface User {
